@@ -22,6 +22,7 @@ const Login = () => {
     const data = await response.json();
     if (data.success) {
       localStorage.setItem("token", data.message);
+      localStorage.setItem("sessionStart", Date.now()); 
       const user = JSON.parse(atob(data.message.split(".")[1]));
       if (user.role === "admin") {
         navigate("/dashboard/admin");

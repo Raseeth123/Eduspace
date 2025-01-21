@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Register from "./components/Register";
 import Login from "./components/Login";
@@ -8,7 +8,22 @@ import Toast from "./components/Toast";
 import ForgotPassword from "./components/ForgotPassword";
 import ResetPassword from "./components/ResetPassword";
 import FacultyDashboard from "./pages/FacultyDashboard";
+import StudentDashboard from "./pages/StudentDashboard";
+import CourseManagement from "./components/CourseManagement";
+import CourseDetails from "./components/CourseDetails";
+// import AddStudent from "./components/AddStudent";
+// import CreateCourse from "./components/CreateCourse";
+import AddCourse from "./components/AddCourse";
 const App = () => {
+  useEffect(() => {
+    const sessionTimeout = setTimeout(() => {
+      localStorage.removeItem("token"); 
+      alert("Session expired. You have been logged out.");
+      window.location.href = "/login"; 
+    }, 60*60*1000); 
+
+    return () => clearTimeout(sessionTimeout); 
+  }, []);
   return (
     <Router>
       <Routes>
@@ -57,7 +72,46 @@ const App = () => {
             />
           }
         />
-       {/* <Route
+         <Route
+          path="/student/course/:courseId"
+          element={
+            <ProtectedRoute
+              element={
+              <>
+               <Toast/>
+               <CourseDetails/>
+              </>
+              }
+              allowedRoles={["student"]} 
+            />
+          }
+        />
+         <Route
+          path="/dashboard/create-course"
+          element={
+            <ProtectedRoute
+              element={
+              <>
+                <Toast/>
+                <AddCourse />
+              </>
+               }
+              allowedRoles={["faculty"]} 
+            />
+          }
+        /> 
+        <Route path="/faculty/course/:courseId" element={
+           <ProtectedRoute
+           element={
+           <>
+             <Toast/>
+             <CourseManagement/>
+           </>
+            }
+           allowedRoles={["faculty"]} 
+         />
+        } />
+        <Route
           path="/dashboard/student"
           element={
             <ProtectedRoute
@@ -65,7 +119,7 @@ const App = () => {
               allowedRoles={["student"]} 
             />
           }
-        /> */}
+        /> 
       </Routes>
     </Router>
   );
