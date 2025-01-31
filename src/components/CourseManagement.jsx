@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const CourseManagement = () => {
   const { courseId } = useParams();
@@ -7,43 +8,60 @@ const CourseManagement = () => {
   const [studentEmail, setStudentEmail] = useState("");
   const [students, setStudents] = useState([]);
 
-  // Fetch course details
   useEffect(() => {
     const fetchCourse = async () => {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:5000/api/faculty/course/${courseId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await response.json();
-      console.log(data)
-      if (data.success) {
-        setCourse(data.course);
-        setStudents(data.course.students);
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(`http://localhost:5000/api/faculty/course/${courseId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await response.json();
+        if (data.success) {
+          setCourse(data.course || {});
+          setStudents(data.course.students || []);
+        } 
+      } catch (error) {
+        console.error("Error fetching course:", error);
       }
-      else console.log(data);
     };
+
     fetchCourse();
   }, [courseId]);
 
   const handleAddStudent = async () => {
-    const token = localStorage.getItem("token");
-    const response = await fetch(
-      `http://localhost:5000/api/faculty/course/${courseId}/add-student`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email: studentEmail }),
-      }
-    );
-    const data = await response.json();
-    if (data.success) {
-      setStudents([...students, data.student]);
-      setStudentEmail(""); // Reset the email input
-    } else {
-      alert(data.message); // Display error message
+    const emailArray = studentEmail.split(",").map((email) => email.trim());
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `http://localhost:5000/api/faculty/course/${courseId}/add-student`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: emailArray }),
+        }
+      );
+      const data = await response.json();
+
+      // Display separate toasts for each email
+      emailArray.forEach((email) => {
+        const successEntry = data.addedStudents.find((entry) => entry.email === email);
+        const errorEntry = data.errors.find((entry) => entry.email === email);
+
+        if (successEntry) {
+          toast.success(successEntry.message, { position: "top-right" });
+          setStudents((prevStudents) => [...prevStudents, successEntry.student]);
+        } else if (errorEntry) {
+          toast.error(`Error with ${email}: ${errorEntry.message}`, { position: "top-right" });
+        }
+      });
+
+      setStudentEmail(""); // Reset the input field
+    } catch (error) {
+      console.error("Error adding student:", error);
+      toast.error("Failed to add student(s).", { position: "top-right" });
     }
   };
 
@@ -56,7 +74,7 @@ const CourseManagement = () => {
       <ul>
         {students.map((student) => (
           <li key={student._id}>
-            {student.name} ({student.email})
+            {student.name || "Unnamed Student"} ({student.email})
           </li>
         ))}
       </ul>
@@ -66,7 +84,7 @@ const CourseManagement = () => {
         type="email"
         value={studentEmail}
         onChange={(e) => setStudentEmail(e.target.value)}
-        placeholder="Enter student email"
+        placeholder="Enter students' email (comma-separated)"
       />
       <button onClick={handleAddStudent}>Add Student</button>
     </div>

@@ -5,24 +5,29 @@ import { toast } from "react-toastify";
 const ResetPassword = () => {
   const { token } = useParams();
   const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword,setConfirmPassword]=useState("");
   const navigate=useNavigate();
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const response = await fetch(`http://localhost:5000/api/auth/reset-password/${token}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ newPassword }),
-      });
-      const data = await response.json();
-      if (data.success){
-        toast.success(data.message);
-        navigate("/login",{replace:true});
-      }
-      else toast.error(data.message);
-    } catch {
-      toast.error("Error resetting password.");
-    }
+    if(newPassword.localeCompare(confirmPassword)===0){
+        try {
+          const response = await fetch(`http://localhost:5000/api/auth/reset-password/${token}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ newPassword }),
+          });
+          const data = await response.json();
+          if (data.success){
+            setNewPassword("");
+            toast.success(data.message);
+            navigate("/login",{replace:true});
+          }
+          else toast.error(data.message);
+        } catch {
+          toast.error("Error resetting password.");
+        }
+     }
+     else toast.error("Passwords do not match!");
   };
 
   return (
@@ -52,6 +57,17 @@ const ResetPassword = () => {
                 onChange={(e) => setNewPassword(e.target.value)}
                 required
               />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Confirm Password</label>
+                <input 
+                  className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-200 focus:border-orange-400 transition-all duration-200 bg-gray-50"
+                  type="password"
+                  placeholder="Confirm your password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
             </div>
             <button 
               type="submit" 

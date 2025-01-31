@@ -14,11 +14,12 @@ const ForgotPassword = () => {
       });
       const data = await response.json();
       console.log(data);
-      if (data.message) toast.success(data.message);
+      if (data.success) toast.success(data.message);
       else toast.error(data.message);
     } catch {
       toast.error("Error sending email.");
     }
+    setEmail("");
   };
 
   return (

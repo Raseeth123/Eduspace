@@ -15,7 +15,6 @@ const CourseDetails = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await response.json();
-
         if (data.success) {
           setCourse(data.course);
         } else {
