@@ -5,9 +5,9 @@ const AddFaculty = () => {
   const token=localStorage.getItem("token")
   console.log(token);
   const [formData, setFormData] = useState({
+    id:"",
     name: "",
     email: "",
-    password: "",
     department: "",
   });
 
@@ -38,7 +38,7 @@ const AddFaculty = () => {
       console.log(data);
       if (data.success) {
         toast.success(data.message, { position: "top-right" });
-        setFormData({ name: "", email: "", password: "", department: "" });
+        setFormData({ id:"",name: "", email: "",department: "" });
       } else {
         toast.error(data.message, { position: "top-right" });
       }
@@ -52,6 +52,14 @@ const AddFaculty = () => {
     <div>
       <h2>Add Faculty</h2>
       <form onSubmit={handleSubmit}>
+        <label>ID</label>
+        <input
+          type="text"
+          name="id"
+          value={formData.id}
+          onChange={handleChange}
+          required
+        />
         <label>Name</label>
         <input
           type="text"
@@ -65,14 +73,6 @@ const AddFaculty = () => {
           type="email"
           name="email"
           value={formData.email}
-          onChange={handleChange}
-          required
-        />
-        <label>Password</label>
-        <input
-          type="password"
-          name="password"
-          value={formData.password}
           onChange={handleChange}
           required
         />
