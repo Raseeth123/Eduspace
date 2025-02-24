@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-
+import { BatchSelector } from "./BatchSelector";
 const CourseManagement = () => {
+  const [selectedBatch, setSelectedBatch] = useState("");
   const { courseId } = useParams();
   const [course, setCourse] = useState(null);
   const [studentEmail, setStudentEmail] = useState("");
@@ -26,7 +27,7 @@ const CourseManagement = () => {
     };
 
     fetchCourse();
-  }, [courseId]);
+  }, [courseId,students]);
 
   const handleAddStudent = async () => {
     const emailArray = studentEmail.split(",").map((email) => email.trim());
@@ -44,8 +45,6 @@ const CourseManagement = () => {
         }
       );
       const data = await response.json();
-
-      // Display separate toasts for each email
       emailArray.forEach((email) => {
         const successEntry = data.addedStudents.find((entry) => entry.email === email);
         const errorEntry = data.errors.find((entry) => entry.email === email);
@@ -58,7 +57,7 @@ const CourseManagement = () => {
         }
       });
 
-      setStudentEmail(""); // Reset the input field
+      setStudentEmail(""); 
     } catch (error) {
       console.error("Error adding student:", error);
       toast.error("Failed to add student(s).", { position: "top-right" });
@@ -87,6 +86,8 @@ const CourseManagement = () => {
         placeholder="Enter students' email (comma-separated)"
       />
       <button onClick={handleAddStudent}>Add Student</button>
+      <BatchSelector onSelectBatch={setSelectedBatch} courseId={courseId} />
+      <p>Selected Batch: {selectedBatch}</p>
     </div>
   );
 };
