@@ -26,7 +26,6 @@ const StudentDashboard = () => {
         setLoading(false);
       }
     };
-
     fetchCourses();
   }, []);
 
@@ -52,6 +51,7 @@ const StudentDashboard = () => {
           ))}
         </ul>
       )}
+
     </div>
   );
 };

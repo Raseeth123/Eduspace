@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { BatchSelector } from "./BatchSelector";
+import AddCourseMaterial from "./AddCourseMaterial";
 const CourseManagement = () => {
   const [selectedBatch, setSelectedBatch] = useState("");
   const { courseId } = useParams();
@@ -88,6 +89,8 @@ const CourseManagement = () => {
       <button onClick={handleAddStudent}>Add Student</button>
       <BatchSelector onSelectBatch={setSelectedBatch} courseId={courseId} />
       <p>Selected Batch: {selectedBatch}</p>
+      <br/><br/>
+      <AddCourseMaterial courseId={courseId}/>
     </div>
   );
 };
