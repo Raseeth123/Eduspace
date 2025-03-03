@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { BatchSelector } from "./BatchSelector";
 import AddCourseMaterial from "./AddCourseMaterial";
+import AssignmentForm from "./AssignmentForm";
 const CourseManagement = () => {
   const [selectedBatch, setSelectedBatch] = useState("");
   const { courseId } = useParams();
@@ -91,6 +92,8 @@ const CourseManagement = () => {
       <p>Selected Batch: {selectedBatch}</p>
       <br/><br/>
       <AddCourseMaterial courseId={courseId}/>
+      <br/>
+      <AssignmentForm courseId={courseId}/>
     </div>
   );
 };

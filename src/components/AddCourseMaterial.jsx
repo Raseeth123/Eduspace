@@ -54,7 +54,7 @@ const AddCourseMaterial = ({ courseId }) => {
     }
     
     setIsUploading(true);
-    setUploadProgress(10); // Show initial progress
+    setUploadProgress(10); 
     
     try {
       // Create FormData object for multipart/form-data submission
@@ -79,8 +79,6 @@ const AddCourseMaterial = ({ courseId }) => {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
-          // Do NOT set Content-Type when sending FormData
-          // Browser will automatically set the correct multipart/form-data with boundary
         },
         body: formDataToSend,
       });
@@ -131,9 +129,7 @@ const AddCourseMaterial = ({ courseId }) => {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="form-group">
           <label htmlFor="co" className="block text-sm font-medium text-gray-700">Course Outcome (CO)</label>
-          <input 
-            id="co"
-            type="text" 
+          <input id="co" type="text" 
             name="CO" 
             placeholder="CO (e.g., CO-1)" 
             value={formData.CO} 
@@ -193,7 +189,6 @@ const AddCourseMaterial = ({ courseId }) => {
           <div className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
             <p>Selected file: <span className="font-medium">{formData.fileUrl.name}</span></p>
             <p>Size: {(formData.fileUrl.size / 1024).toFixed(2)} KB</p>
-            <p>Type: {formData.fileUrl.type || "Unknown"}</p>
           </div>
         )}
         

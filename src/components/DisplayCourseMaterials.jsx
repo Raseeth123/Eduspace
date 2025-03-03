@@ -17,7 +17,7 @@ const DisplayCourseMaterials = ({ courseId, refreshTrigger }) => {
     }
     
     fetchCourseMaterials();
-  }, [courseId, refreshTrigger]); // Add refreshTrigger to dependencies
+  }, [courseId, refreshTrigger]);
 
   const fetchCourseMaterials = async () => {
     try {
