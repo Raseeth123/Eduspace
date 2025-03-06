@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import DisplayAssignments from "./DisplayAssignments"; // Ensure the path is correct
@@ -10,6 +11,7 @@ const AssignmentForm = ({ courseId }) => {
     description: "",
     dueDate: "",
   });
+  const [refreshAssignments,setRefreshAssignments]=useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -52,6 +54,7 @@ const AssignmentForm = ({ courseId }) => {
           description: "",
           dueDate: "",
         });
+        setRefreshAssignments(prev=>!prev);
       } else {
         toast.error(data.message, { position: "top-right" });
         console.error("Server error details:", data.details || data.error);
@@ -126,7 +129,7 @@ const AssignmentForm = ({ courseId }) => {
         </button>
       </form>
       <br/>
-      <DisplayAssignments courseId={courseId}/>
+      <DisplayAssignments courseId={courseId} refreshTrigger={refreshAssignments}/>
     </div>
   );
 };

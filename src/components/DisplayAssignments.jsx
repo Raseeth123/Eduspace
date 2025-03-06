@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 
-const DisplayAssignments = ({ courseId }) => {
+const DisplayAssignments = ({ courseId,refreshTrigger }) => {
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedCO, setExpandedCO] = useState(null);
@@ -15,7 +15,7 @@ const DisplayAssignments = ({ courseId }) => {
     }
 
     fetchAssignments();
-  }, [courseId]);
+  }, [courseId,refreshTrigger]);
 
   const fetchAssignments = async () => {
     try {
