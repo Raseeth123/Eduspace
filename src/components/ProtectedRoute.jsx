@@ -14,7 +14,7 @@ const ProtectedRoute = ({ element, allowedRoles }) => {
     alert("Session expired. Please log in again.");
     return <Navigate to="/login" state={{ from: location }} />;
   }
-  if (!allowedRoles.includes(user.role)) {
+  if (allowedRoles?.length>0 && !allowedRoles.includes(user.role)) {
     return <Navigate to="/" />;
   }
   localStorage.setItem("sessionStart", Date.now());

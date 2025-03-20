@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import Assignments from "./Assignments";
+import { toast } from "react-toastify";
+import Chat from "./Chat.jsx";
 
 const CourseDetails = () => {
   const { courseId } = useParams();
@@ -10,6 +11,30 @@ const CourseDetails = () => {
   const [error, setError] = useState(null);
   const [expandedCO, setExpandedCO] = useState(null);
   const [assignments, setAssignments] = useState([]);
+  const [studentName, setStudentName] = useState("");
+  const [courseName, setCourseName] = useState("");
+  const [studentId, setStudentId] = useState("");
+  const jwtToken = localStorage.getItem("token");
+
+  function decodeJwtPayload(token) {
+    const parts = token.split('.');
+    if (parts.length !== 3) {
+      throw new Error('Invalid JWT format');
+    }
+    const payload = parts[1];
+    const base64Payload = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const decodedPayload = atob(base64Payload);
+    const payloadObject = JSON.parse(decodedPayload);
+    return payloadObject;
+  }
+
+  const decodedPayload = jwtToken ? decodeJwtPayload(jwtToken) : null;
+
+  useEffect(() => {
+    if (decodedPayload) {
+      setStudentId(decodedPayload.id);
+    }
+  }, [decodedPayload]);
 
   useEffect(() => {
     const fetchCourseData = async () => {
@@ -28,7 +53,7 @@ const CourseDetails = () => {
         }
 
         setCourse(courseData.message);
-        
+        setCourseName(courseData.message.title);
         // Fix: Correctly access the assignments from courseData.message instead of courseData
         if (courseData.message.assignments && Array.isArray(courseData.message.assignments)) {
           setAssignments(courseData.message.assignments);
@@ -56,6 +81,29 @@ const CourseDetails = () => {
 
     fetchCourseData();
   }, [courseId]);
+
+  useEffect(() => {
+    const fetchStudent = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(`http://localhost:5000/api/student/details/${decodedPayload.id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await response.json();
+        if (data.success) {
+          setStudentName(data.student.name);
+          console.log(studentName);
+        } else {
+          toast.error(data.message || "Failed to fetch Student Details");
+        }
+      } catch (error) {
+        console.error("Error fetching Student details:", error);
+        toast.error("Failed to fetch Student details.", { position: "top-right" });
+      }
+    };
+
+    if (courseId) fetchStudent();
+  }, [courseId, decodedPayload]);
 
   const getMaterialsByCO = (co) => {
     if (!materials.length) return [];
@@ -118,8 +166,8 @@ const CourseDetails = () => {
 
               return (
                 <div key={`materials-${co}`} className="border rounded-md overflow-hidden">
-                  <div 
-                    className={`flex justify-between items-center p-4 cursor-pointer ${expandedCO === `materials-${co}` ? "bg-indigo-100" : "bg-gray-50"}`} 
+                  <div
+                    className={`flex justify-between items-center p-4 cursor-pointer ${expandedCO === `materials-${co}` ? "bg-indigo-100" : "bg-gray-50"}`}
                     onClick={() => toggleCO(`materials-${co}`)}
                   >
                     <h3 className="text-md font-medium text-gray-700">{co}</h3>
@@ -169,8 +217,8 @@ const CourseDetails = () => {
 
               return (
                 <div key={`assignments-${co}`} className="border rounded-md overflow-hidden">
-                  <div 
-                    className={`flex justify-between items-center p-4 cursor-pointer ${expandedCO === `assignments-${co}` ? "bg-indigo-100" : "bg-gray-50"}`} 
+                  <div
+                    className={`flex justify-between items-center p-4 cursor-pointer ${expandedCO === `assignments-${co}` ? "bg-indigo-100" : "bg-gray-50"}`}
                     onClick={() => toggleCO(`assignments-${co}`)}
                   >
                     <h3 className="text-md font-medium text-gray-700">{co}</h3>
@@ -209,6 +257,7 @@ const CourseDetails = () => {
           </div>
         )}
       </div>
+      <Chat userId={studentId} courseName={courseName} username={studentName} room={courseId} />
     </div>
   );
 };
