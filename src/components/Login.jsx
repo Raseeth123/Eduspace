@@ -12,13 +12,32 @@ const Login = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Animation effect when component mounts
+    const token = localStorage.getItem("token");
+    const sessionStart = localStorage.getItem("sessionStart");
+    const sessionDuration = 60 * 60 * 1000;
+    const isSessionValid = sessionStart && (Date.now() - parseInt(sessionStart) < sessionDuration);
+    
+    if (token && isSessionValid) {
+      try {
+        const user = JSON.parse(atob(token.split(".")[1]));
+        if (user.role === "admin") {
+          navigate("/dashboard/admin", { replace: true });
+        } else if (user.role === "faculty") {
+          navigate("/dashboard/faculty", { replace: true });
+        } else {
+          navigate("/dashboard/student", { replace: true });
+        }
+      } catch (error) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("sessionStart");
+      }
+    }
     const timer = setTimeout(() => {
       setAnimationComplete(true);
     }, 500);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -36,10 +55,8 @@ const Login = () => {
       const data = await response.json();
       if (data.success) {
         localStorage.setItem("token", data.message);
-        localStorage.setItem("sessionStart", Date.now());
+        localStorage.setItem("sessionStart", Date.now().toString());
         const user = JSON.parse(atob(data.message.split(".")[1]));
-
-        // Success animation before redirect
         setMessage("Login successful! Redirecting...");
         setTimeout(() => {
           if (user.role === "admin") {
@@ -63,9 +80,7 @@ const Login = () => {
 
   return (
     <section className="min-h-screen w-full flex flex-row bg-[#141e49]">
-      {/* Left side - Image with proper scaling */}
       <div className="w-1/2 relative hidden md:block bg-[#070D24]">
-        {/* Full image container with proper styling */}
         <div className="w-full h-full flex items-center justify-center">
           <img
             src="https://i.pinimg.com/736x/bf/49/7f/bf497f8e4ce13c334fecdec4f7118de5.jpg"
@@ -73,15 +88,11 @@ const Login = () => {
             className="w-full h-full object-cover"
             style={{
               filter: "brightness(1.2) contrast(1.1)",
-              height: "100vh", // Ensure the image height matches the screen size
+              height: "100vh", 
             }}
           />
         </div>
-
-        {/* Semi-transparent overlay for better text visibility */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#070D24]/80 via-transparent to-[#070D24]/80"></div>
-
-        {/* Logo and welcome text */}
         <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-12">
           <div className={`transform transition-all duration-700 ease-out mb-10 text-center ${animationComplete ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
             <div className="flex items-center justify-center gap-3 mb-4">
@@ -97,8 +108,6 @@ const Login = () => {
               Empowering Learning, One Click at a Time
             </p>
           </div>
-
-          {/* Stats display with elegant design */}
           <div className="flex justify-center items-center space-x-16 py-6 mt-auto backdrop-blur-sm bg-slate-800/50 px-10 rounded-lg shadow-lg border border-slate-700/30">
             <div className="text-center">
               <p className="text-2xl font-bold text-blue-300">500+</p>
@@ -116,12 +125,8 @@ const Login = () => {
         </div>
       </div>
 
-      {/* Right side - Login Form */}
       <div className="w-full md:w-1/2 bg-[#070D24] flex flex-col items-center justify-center px-4 py-10 relative">
-        {/* Subtle background pattern */}
         <div className="absolute inset-0 opacity-5 pattern-bg"></div>
-
-        {/* Welcome text for mobile */}
         <div className={`md:hidden transform transition-all duration-700 ease-out mb-8 z-10 ${animationComplete ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
           <div className="flex items-center justify-center gap-2 mb-2">
             <svg className="w-8 h-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -137,7 +142,7 @@ const Login = () => {
           </p>
         </div>
 
-        {/* Login form with clean design */}
+
         <div className={`w-full max-w-md z-10 transition-all duration-700 ease-out ${animationComplete ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-10 opacity-0 scale-95'}`}>
           <div className="px-8 py-8 md:py-10">
             <div className="text-center mb-8">
@@ -241,7 +246,7 @@ const Login = () => {
         </div>
       </div>
 
-      {/* Add subtle professional styling */}
+      
       <style jsx global>{`
         .pattern-bg {
           background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
